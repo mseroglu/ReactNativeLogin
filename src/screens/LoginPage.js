@@ -2,13 +2,25 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import Loading from '../components/Loading'
 import { CustomTextInput, CustomButton } from '../components'
 import { useDispatch, useSelector } from 'react-redux'
-import { setEmail, setIsLoading, setPassword, setLogin, setIsAuth } from '../redux/userSlice'
+import { setIsLoading, login, clearError } from '../redux/userSlice'
+import { useEffect, useState } from 'react'
 
 
 
-const LoginPage = ({navigation}) => {
-  const { email, password, isLoading, isAuth } = useSelector(state => state.user)
+const LoginPage = ({ navigation }) => {
+  const { isLoading, error } = useSelector(state => state.user)
   const dispatch = useDispatch()
+
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      dispatch(clearError());
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [error]);
 
 
   return (
@@ -25,7 +37,7 @@ const LoginPage = ({navigation}) => {
         placeholder='E-Mail Adresi'
         label="Kullanıcı Adı"
         value={email}
-        setValue={(text) => dispatch(setEmail(text))}
+        setValue={(text) => setEmail(text.toLowerCase())}
       />
       <CustomTextInput
         inputMode='text'
@@ -33,13 +45,17 @@ const LoginPage = ({navigation}) => {
         label="Parola"
         secureTextEntry={true}
         value={password}
-        setValue={(text) => dispatch(setPassword(text))}
+        setValue={(text) => setPassword(text)}
       />
+
+      {
+        error && <Text style={styles.error}>Kullanıcı adı veya parola hatalı!</Text>
+      }
 
       <CustomButton
         title="Login"
         handleOnPress={() => {
-          dispatch(setLogin())
+          dispatch(login({ email, password }))
         }}
       />
 
@@ -47,7 +63,6 @@ const LoginPage = ({navigation}) => {
         title="Sign Up"
         handleOnPress={() => {
           navigation.navigate("Signup")
-
         }}
       />
 
@@ -77,5 +92,9 @@ const styles = StyleSheet.create({
     height: 150,
     width: 150,
     marginBottom: 20
+  },
+  error: {
+    color:"red",
+    fontWeight: "bold",
   }
 })
