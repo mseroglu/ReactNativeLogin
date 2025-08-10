@@ -1,9 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { useDispatch } from 'react-redux'
-import { setIsAuth } from '../redux/userSlice'
+import { logout, setIsAuth } from '../redux/userSlice'
 
 
-const HomePage = ({navigation}) => {
+const HomePage = ({ navigation }) => {
   const dispatch = useDispatch()
 
 
@@ -15,7 +15,6 @@ const HomePage = ({navigation}) => {
       <Pressable
         onPress={() => {
           dispatch(setIsAuth(false))
-
         }}
         style={styles.butonBack}
       >
@@ -27,6 +26,15 @@ const HomePage = ({navigation}) => {
         style={styles.butonBack}
       >
         <Text style={styles.text}>Profile Sayfasına Git</Text>
+      </Pressable>
+
+      <Pressable
+        onPress={() => {
+          dispatch(logout())
+        }}
+        style={styles.butonBack}
+      >
+        <Text style={styles.text}>Çıkış</Text>
       </Pressable>
 
     </View>
@@ -43,7 +51,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontWeight: "bold",
-    fontSize: 30,
+    fontSize: 20,
   },
   butonBack: {
     backgroundColor: "green",

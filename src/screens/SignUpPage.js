@@ -1,12 +1,24 @@
 import { Pressable, SafeAreaView, StyleSheet, Text, View, Image } from 'react-native'
-import React, { useState } from 'react'
-import { CustomButton, CustomTextInput } from '../components'
+import { useState, } from 'react'
+import { CustomButton, CustomTextInput, Loading } from '../components'
+import { useDispatch, useSelector } from "react-redux"
+import { register } from '../redux/userSlice'
+
 
 const SignUpPage = ({ navigation }) => {
+  const { isLoading } = useSelector(state => state.user)
   const [name, setName] = useState("")
-  const [username, setUsername] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
+  const dispatch = useDispatch()
+
+  const createNewUser = () => {
+    dispatch(register({ email, password }))
+
+  }
+
+  
 
   return (
     // SafeAreaView çentik kısmını devre dışı bırakır
@@ -33,8 +45,8 @@ const SignUpPage = ({ navigation }) => {
           inputMode='email'
           placeholder='E-Mail Adresi'
           label="Kullanıcı Adı"
-          value={username}
-          setValue={setUsername}
+          value={email}
+          setValue={(text) => setEmail(text.toLowerCase())}
         />
 
         <CustomTextInput
@@ -48,10 +60,10 @@ const SignUpPage = ({ navigation }) => {
       </View>
 
       <View style={[styles.common, styles.options]}>
-        
+
         <CustomButton
           title="Kaydet"
-          handleOnPress={() => navigation.navigate("Login")}
+          handleOnPress={createNewUser}
         />
 
         <Pressable
@@ -66,7 +78,9 @@ const SignUpPage = ({ navigation }) => {
       </View>
 
 
-
+      {
+        isLoading && <Loading  />
+      }
     </SafeAreaView>
   )
 }
