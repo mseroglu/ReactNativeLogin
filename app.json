@@ -24,6 +24,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "APIKEY": "AIzaSyDVTPoXdbZRdDMrTEBE0PTHEfq2hCc5JDQ",
+      "AUTHDOMAIN": "reactnativefirst-acbf1.firebaseapp.com",
+      "PROJECTID": "reactnativefirst-acbf1",
+      "STORAGEBUCKET": "reactnativefirst-acbf1.firebasestorage.app",
+      "MESSAGINGSENDERID": "590910846643",
+      "APPID": "1:590910846643:web:9610e0bd5a32a4d6bd22c6"
     }
   }
 }

@@ -2,16 +2,17 @@
 import { initializeApp } from "firebase/app";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import Costants from "expo-constants";
 
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDVTPoXdbZRdDMrTEBE0PTHEfq2hCc5JDQ",
-  authDomain: "reactnativefirst-acbf1.firebaseapp.com",
-  projectId: "reactnativefirst-acbf1",
-  storageBucket: "reactnativefirst-acbf1.firebasestorage.app",
-  messagingSenderId: "590910846643",
-  appId: "1:590910846643:web:9610e0bd5a32a4d6bd22c6"
+  apiKey: Costants.expoConfig.extra.APIKEY,
+  authDomain: Costants.expoConfig.extra.AUTHDOMAIN,
+  projectId: Costants.expoConfig.extra.PROJECTID,
+  storageBucket: Costants.expoConfig.extra.STORAGEBUCKET,
+  messagingSenderId: Costants.expoConfig.extra.MESSAGINGSENDERID,
+  appId: Costants.expoConfig.extra.APPID
 };
 
 // Initialize Firebase
