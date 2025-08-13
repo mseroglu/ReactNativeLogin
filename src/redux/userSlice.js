@@ -5,7 +5,8 @@ import {
     signOut,
     sendEmailVerification,
     signInWithEmailAndPassword,
-    createUserWithEmailAndPassword
+    createUserWithEmailAndPassword,
+    onAuthStateChanged
 } from "firebase/auth"
 
 
@@ -16,53 +17,66 @@ export const login = createAsyncThunk("user/login", async ({ email, password }) 
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
 
         const user = userCredential.user
-        const token = user.stsTokenManager.accessToken
 
+        // Gerekli kullanıcı bilgilerini sakla
         const userData = {
-            token,
-            user: user,
-        }
-        // telefon hafızasına kaydet
-        AsyncStorage.setItem("userToken", token)
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            token: user.sts
+        };
 
         return userData
     } catch (error) {
-        console.log("userSlice.js line 19 ", error)
+        console.log("login HATA: ", error)
         throw error
     }
 
 })
 
-export const autoLogin = createAsyncThunk("user/autoLogin", async () => {
-    try {
-        const token = await AsyncStorage.getItem("userToken")
 
-        if (token) {
-            return token
-        } else {
-            throw new Error("User not Found")
-        }
+export const autoLogin = createAsyncThunk("user/autoLogin", async (_, { rejectWithValue }) => {
+    const auth = getAuth();
 
-    } catch (error) {
-        throw error
-    }
-})
+    return new Promise((resolve, reject) => {
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const freshToken = await user.getIdToken(true);
+                resolve({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    token: freshToken,
+                });
+            } else {
+                reject(rejectWithValue("Oturum bulunamadı"));
+            }
+        });
+    });
+    
+}
+);
+
 
 export const register = createAsyncThunk("user/register", async ({ email, password }) => {
     try {
-        const auth = getAuth();
+        const auth = getAuth()
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
 
-        const user = userCredential.user;
-        const token = user.stsTokenManager.accessToken
+        const user = userCredential.user
+
+        const userData = {
+            name: user.displayName,
+            email: user.email,
+            uid: user.uid
+        }
 
         await sendEmailVerification(user)
 
-        await AsyncStorage.setItem("userToken", token)
-
-        return token
+        return userData
 
     } catch (error) {
+        console.error("register HATA: ", error);
         throw error
     }
 })
@@ -71,10 +85,9 @@ export const logout = createAsyncThunk("user/logout", async () => {
     try {
         const auth = getAuth()
         await signOut(auth)
-
-        await AsyncStorage.removeItem("userToken")
         return null
     } catch (error) {
+        console.log("logout HATA: ", error)
         throw error
     }
 })
@@ -83,8 +96,7 @@ export const logout = createAsyncThunk("user/logout", async () => {
 const initialState = {
     isLoading: false,
     isAuth: false,
-    token: null,
-    user: null,
+    userData: null,
     error: null,
 
 }
@@ -101,8 +113,7 @@ export const userSlice = createSlice({
         },
         clearError: (state) => {
             state.error = null
-        }
-
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -114,8 +125,7 @@ export const userSlice = createSlice({
             .addCase(login.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.isAuth = true
-                state.user = action.payload.user
-                state.token = action.payload.token
+                state.userData = action.payload
             })
             .addCase(login.rejected, (state, action) => {
                 state.isLoading = false
@@ -130,14 +140,14 @@ export const userSlice = createSlice({
             .addCase(autoLogin.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.isAuth = true
-                state.token = action.payload
+                state.userData = action.payload
             })
             .addCase(autoLogin.rejected, (state) => {
                 state.isLoading = false
                 state.isAuth = false
-                state.token = null
+                state.userData = null
             })
-            // üye kayıt
+            // register
             .addCase(register.pending, (state) => {
                 state.isLoading = true
                 state.isAuth = false
@@ -145,12 +155,12 @@ export const userSlice = createSlice({
             .addCase(register.fulfilled, (state, action) => {
                 state.isLoading = false
                 state.isAuth = true
-                state.token = action.payload
+                state.userData = action.payload
             })
             .addCase(register.rejected, (state, action) => {
                 state.isLoading = false
                 state.isAuth = false
-                state.token = null
+                state.userData = null
                 state.error = action.payload
             })
             // logout
@@ -160,8 +170,8 @@ export const userSlice = createSlice({
             .addCase(logout.fulfilled, (state) => {
                 state.isLoading = false
                 state.isAuth = false
-                state.token = null
                 state.error = null
+                state.userData = null
             })
             .addCase(logout.rejected, (state, action) => {
                 state.isLoading = false

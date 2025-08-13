@@ -2,17 +2,17 @@ import { StyleSheet, Text, View, Image } from 'react-native'
 import Loading from '../components/Loading'
 import { CustomTextInput, CustomButton } from '../components'
 import { useDispatch, useSelector } from 'react-redux'
-import { login, clearError, autoLogin  } from '../redux/userSlice'
+import { login, clearError, autoLogin, setIsLoading } from '../redux/userSlice'
 import { useEffect, useState } from 'react'
 
 
 
 const LoginPage = ({ navigation }) => {
   const { isLoading, error } = useSelector(state => state.user)
-  
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  
+
   const dispatch = useDispatch()
 
   useEffect(() => {
@@ -23,9 +23,9 @@ const LoginPage = ({ navigation }) => {
     return () => clearTimeout(timer);
   }, [error]);
 
-  useEffect(()=>{
+  useEffect(() => {
     dispatch(autoLogin())
-  },[])
+  }, [])
 
 
   return (
@@ -72,7 +72,7 @@ const LoginPage = ({ navigation }) => {
       />
 
       {
-        isLoading && <Loading />
+        isLoading && <Loading setIsLoading={() => dispatch(setIsLoading(false))} />
       }
     </View>
   )
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   error: {
-    color:"red",
+    color: "red",
     fontWeight: "bold",
   }
 })

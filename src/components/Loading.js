@@ -1,14 +1,14 @@
 import { StyleSheet, Text, View, ActivityIndicator, Pressable } from 'react-native'
-import { setIsLoading } from '../redux/userSlice'
 
-const Loading = () => {
+
+const Loading = ({setIsLoading}) => {
 
 
     return (
         <View style={styles.container}>
             <Pressable
                 style={styles.closeButton}
-                onPress={() => setIsLoading(false)}
+                onPress={setIsLoading}
             >
                 <Text style={styles.closeButtonText}>X</Text>
             </Pressable>
