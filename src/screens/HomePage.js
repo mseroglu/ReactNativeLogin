@@ -1,4 +1,4 @@
-import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View, Button, TextInput } from 'react-native'
+import { FlatList, Pressable, SafeAreaView, StyleSheet, Text, View, Button, TextInput, Alert } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { logout } from '../redux/userSlice'
 import { useEffect, useState } from 'react'
@@ -14,6 +14,8 @@ const HomePage = ({ navigation }) => {
   const { isLoading, todos, error, inputTodo, isChange } = useSelector(state => state.todo)
   const { userData } = useSelector(state => state.user)
 
+  const [showEmail, setShowEmail] = useState(false)
+
 
   const dispatch = useDispatch()
 
@@ -21,6 +23,22 @@ const HomePage = ({ navigation }) => {
   useEffect(() => {
     dispatch(getAllTodos())
   }, [isChange])
+
+  const showAlert = () =>
+    Alert.alert(
+      'DİKKAT!',
+      'Todo metni boş olmamalı..',
+      [
+        {
+          text: 'Tamam',
+          style: 'cancel',
+        },
+      ],
+      {
+        cancelable: true,
+
+      },
+    );
 
   const handleSendData = () => {
     if (inputTodo) {
@@ -30,7 +48,7 @@ const HomePage = ({ navigation }) => {
         "createdAt": serverTimestamp()
       }))
     } else {
-      // Hata göster
+      showAlert()
     }
   }
 
@@ -39,7 +57,9 @@ const HomePage = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
 
-      <Text style={styles.text}>Anasayfa - {userData?.displayName ? userData?.displayName : userData?.email}</Text>
+      <Pressable style={styles.title} onPress={() => setShowEmail(!showEmail)}>
+        <Text style={styles.text}>Anasayfa - {showEmail ? userData?.displayName : userData?.email}</Text>
+      </Pressable>
 
       <View style={styles.addTodoContainer}>
         <TextInput
@@ -109,13 +129,16 @@ const styles = StyleSheet.create({
     lineHeight: 15,
     fontSize: 14
   },
+  title: {
+    width: "100%"
+  },
   text: {
     fontWeight: "bold",
-    fontSize: 20,
+    fontSize: 16,
     backgroundColor: "darkgray",
     width: "100%",
     textAlign: "center",
-    paddingVertical: 10,
+    paddingVertical: 20,
     color: "white",
   },
   textBtn: {
