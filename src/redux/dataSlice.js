@@ -1,10 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { addDoc, collection, getDocs, orderBy, query, updateDoc, doc } from "firebase/firestore";
+import { addDoc, collection, getDocs, orderBy, query, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebaseConfig";
 import { getAuth } from "firebase/auth";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-
 
 
 export const newTodo = createAsyncThunk("todo/newTodo", async (data) => {
@@ -24,17 +21,11 @@ export const newTodo = createAsyncThunk("todo/newTodo", async (data) => {
 
 
 export const getAllTodos = createAsyncThunk("todo/getTodos", async () => {
-    console.log("getAllTodos çalıştı..")
     const auth = getAuth();
     const user = auth.currentUser;
-    //let user = await AsyncStorage.getItem("user")
-    //user = JSON.parse(user)
-
-   // if (!user) user = auth.currentUser
 
     const todos = []
     try {
-
         if (user) {
             const q = query(collection(db, 'users', user.uid, "todos"), orderBy("title", "asc"))
             const data = await getDocs(q)
@@ -61,6 +52,19 @@ export const updateTodo = createAsyncThunk("todo/update", async ({ id, isDone })
     }
 })
 
+export const delTodo = createAsyncThunk("todo/del", async (id) => {
+    try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+        await deleteDoc(doc(db, "users", user.uid, "todos", id))
+        console.log("todo silindi..")
+        return id
+    } catch (error) {
+        console.log("delTodo HATA: ", error)
+        throw error
+    }
+})
+
 const initialState = {
     todos: [],
     inputTodo: "",
@@ -82,12 +86,11 @@ export const todoSlice = createSlice({
         },
         setClearTodos: (state) => {
             state.todos = []
-        }
-
+        },
     },
     extraReducers: (builder) => {
         builder
-        // add new todo
+            // add new todo
             .addCase(newTodo.pending, (state) => {
                 state.isLoading = true
             })
@@ -128,6 +131,21 @@ export const todoSlice = createSlice({
                 state.isLoading = false
                 state.error = action.error
             })
+
+            // delete
+            .addCase(delTodo.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(delTodo.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.error = null
+                state.todos = state.todos.filter(item => item.id !== action.payload)
+            })
+            .addCase(delTodo.rejected, (state, action) => {
+                state.isLoading = false
+                state.error = action.payload
+            })
+
 
     }
 
