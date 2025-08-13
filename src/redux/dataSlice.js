@@ -57,7 +57,7 @@ export const delTodo = createAsyncThunk("todo/del", async (id) => {
         const auth = getAuth();
         const user = auth.currentUser;
         await deleteDoc(doc(db, "users", user.uid, "todos", id))
-        console.log("todo silindi..")
+
         return id
     } catch (error) {
         console.log("delTodo HATA: ", error)

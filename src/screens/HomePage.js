@@ -39,7 +39,7 @@ const HomePage = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
 
-      <Text style={styles.text}>Anasayfa - {userData?.email}</Text>
+      <Text style={styles.text}>Anasayfa - {userData?.displayName ? userData?.displayName : userData?.email}</Text>
 
       <View style={styles.addTodoContainer}>
         <TextInput

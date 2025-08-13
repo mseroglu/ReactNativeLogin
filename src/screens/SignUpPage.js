@@ -7,14 +7,14 @@ import { register } from '../redux/userSlice'
 
 const SignUpPage = ({ navigation }) => {
   const { isLoading } = useSelector(state => state.user)
-  const [name, setName] = useState("")
+  const [displayName, setDisplayName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   const dispatch = useDispatch()
 
   const createNewUser = () => {
-    dispatch(register({ email, password }))
+    dispatch(register({ email, password, displayName }))
 
   }
 
@@ -37,8 +37,8 @@ const SignUpPage = ({ navigation }) => {
           inputMode="text"
           label="İsim"
           placeholder="İsminizi giriniz"
-          value={name}
-          setValue={setName}
+          value={displayName}
+          setValue={setDisplayName}
         />
 
         <CustomTextInput

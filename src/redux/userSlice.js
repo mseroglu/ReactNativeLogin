@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
     getAuth,
@@ -6,7 +5,8 @@ import {
     sendEmailVerification,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
-    onAuthStateChanged
+    onAuthStateChanged,
+    updateProfile
 } from "firebase/auth"
 
 
@@ -18,12 +18,13 @@ export const login = createAsyncThunk("user/login", async ({ email, password }) 
 
         const user = userCredential.user
 
+        console.log(user)
+
         // Gerekli kullanıcı bilgilerini sakla
         const userData = {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
-            token: user.sts
         };
 
         return userData
@@ -53,12 +54,12 @@ export const autoLogin = createAsyncThunk("user/autoLogin", async (_, { rejectWi
             }
         });
     });
-    
+
 }
 );
 
 
-export const register = createAsyncThunk("user/register", async ({ email, password }) => {
+export const register = createAsyncThunk("user/register", async ({ email, password, displayName }) => {
     try {
         const auth = getAuth()
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
@@ -70,6 +71,10 @@ export const register = createAsyncThunk("user/register", async ({ email, passwo
             email: user.email,
             uid: user.uid
         }
+
+        await updateProfile(user, {
+            displayName: displayName,
+        });
 
         await sendEmailVerification(user)
 
